@@ -2,6 +2,8 @@ package Project3;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Project3 implements Runnable{
 	
@@ -15,21 +17,19 @@ public class Project3 implements Runnable{
 	public static int currentTime = 0;
 	public static boolean lock = false;
 	public static int longestTime;
-	
+	public static int counter =1;
 	
 	private static int id;
 	private static int gender;
 	private static int time;
 	
-
+	private final static Lock bufflock = new ReentrantLock();
 	public static void Threads() {
 			
 		for(int i=0; i<people; i++) {
 			Thread Pthread = new Thread(new Project3());	
 			Pthread.setName(Integer.toString(i + 1));
-			
-			
-			
+						
 			Pthread.start();
 		}
 	}
@@ -37,7 +37,7 @@ public class Project3 implements Runnable{
 	
 	public void OnePerson(int id, int gender, int time) {
 		
-		//person arives
+		//person arrives
 		if (gender == 0) {
 				System.out.println("Time = "+currentTime+";"
 						+ " Person "+Thread.currentThread().getName()+" (F) arrives");
@@ -67,22 +67,27 @@ public class Project3 implements Runnable{
 	@SuppressWarnings("deprecation")
 	public static void Arrive(int id, int gender, int time) throws InterruptedException {
 		
-		
+		bufflock.lock();
 		boolean waiting  = true;
-		
 		while (waiting == true) {
+			
+			if(Integer.parseInt(Thread.currentThread().getName()) > counter) {
+				//TimeUnit.NANOSECONDS.sleep(id);	
+			}
 		
 			//for girls
 			if (gender == 0) { //if you are a girl
 				
 				if (buffer == 0 && lock == false) { //and if no one is in the bathroom
-					lock = true; //aquire the lock for girls
+					lock = true; //Acquire the lock for girls
 					
 					currentGender = gender; //put a girls sign on the door
 					System.out.println("Time = "+currentTime+"; Person "+Thread.currentThread().getName()+" (F) "
 							+ "enters the facilities for "+time+" minutes");
 					buffer++;
+					counter++;
 					break;
+					
 				
 				}
 				
@@ -91,19 +96,19 @@ public class Project3 implements Runnable{
 						System.out.println("Time = "+currentTime+"; Person "+Thread.currentThread().getName()+" (F) "
 								+ "enters the facilities for "+time+" minutes");
 						buffer++; //arrive in the bathroom
+						counter++;
 						break;
 					
 					}
 				
 				else {
-					TimeUnit.SECONDS.sleep(currentTime);
+					TimeUnit.MILLISECONDS.sleep(1);
 					
 					continue;
 					
 				}
 			}
 			
-		
 			//for boys
 			if (gender == 1) { //if you are a boy
 				
@@ -115,6 +120,7 @@ public class Project3 implements Runnable{
 					System.out.println("Time = "+currentTime+"; Person "+Thread.currentThread().getName()+" (M) "
 							+ "enters the facilities for "+time+" minutes");
 					buffer++;
+					counter++;
 					break;
 				
 					
@@ -124,21 +130,26 @@ public class Project3 implements Runnable{
 					System.out.println("Time = "+currentTime+"; Person "+Thread.currentThread().getName()+" (M) "
 							+ "enters the facilities for "+time+" minutes");
 					buffer++; //arrive in the bathroom
+					counter++;
 					break;
 				}
 				
 				else {
-					TimeUnit.SECONDS.sleep(currentTime);
+					TimeUnit.MILLISECONDS.sleep(1);
 					continue;
 					
 				}
 			}
+			
 		}
+		
+		//System.out.println(buffer);
 	}
 	
 	
 	public static void UseFacilities(int id, int gender, int time) {
 		
+		bufflock.unlock();
 		
 		try {
 			TimeUnit.SECONDS.sleep(time);
@@ -153,7 +164,6 @@ public class Project3 implements Runnable{
 			
 		}
 		
-		//System.out.println(id+ " using bathroom");
 		
 	}
 	
@@ -215,10 +225,6 @@ public class Project3 implements Runnable{
 	
 	}
 
-	
-	
-	
-	
 }
 
 class Simulate {
