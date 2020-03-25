@@ -2,6 +2,8 @@ package Project3;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Project3 implements Runnable{
 	
@@ -15,13 +17,13 @@ public class Project3 implements Runnable{
 	public static int currentTime = 0;
 	public static boolean lock = false;
 	public static int longestTime;
-	public static int counter =0;
+	public static int counter =1;
 	
 	private static int id;
 	private static int gender;
 	private static int time;
 	
-
+	private final static Lock bufflock = new ReentrantLock();
 	public static void Threads() {
 			
 		for(int i=0; i<people; i++) {
@@ -29,12 +31,6 @@ public class Project3 implements Runnable{
 			Pthread.setName(Integer.toString(i + 1));
 						
 			Pthread.start();
-			try {
-				TimeUnit.NANOSECONDS.sleep(1);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 	}
 
@@ -71,13 +67,12 @@ public class Project3 implements Runnable{
 	@SuppressWarnings("deprecation")
 	public static void Arrive(int id, int gender, int time) throws InterruptedException {
 		
-		
+		bufflock.lock();
 		boolean waiting  = true;
 		while (waiting == true) {
 			
 			if(Integer.parseInt(Thread.currentThread().getName()) > counter) {
-				TimeUnit.NANOSECONDS.sleep(1);
-				
+				TimeUnit.NANOSECONDS.sleep(id);	
 			}
 		
 			//for girls
@@ -145,7 +140,9 @@ public class Project3 implements Runnable{
 					
 				}
 			}
+			
 		}
+		bufflock.unlock();
 	}
 	
 	
@@ -165,7 +162,6 @@ public class Project3 implements Runnable{
 			
 		}
 		
-		//System.out.println(id+ " using bathroom");
 		
 	}
 	
