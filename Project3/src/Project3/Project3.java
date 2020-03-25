@@ -16,7 +16,6 @@ public class Project3 implements Runnable{
 	public static boolean lock = false;
 	public static int longestTime;
 	
-	
 	private static int id;
 	private static int gender;
 	private static int time;
@@ -29,13 +28,19 @@ public class Project3 implements Runnable{
 			Pthread.setName(Integer.toString(i + 1));
 						
 			Pthread.start();
+			try {
+				TimeUnit.NANOSECONDS.sleep(1);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
 	
 	public void OnePerson(int id, int gender, int time) {
 		
-		//person arives
+		//person arrives
 		if (gender == 0) {
 				System.out.println("Time = "+currentTime+";"
 						+ " Person "+Thread.currentThread().getName()+" (F) arrives");
@@ -67,14 +72,13 @@ public class Project3 implements Runnable{
 		
 		
 		boolean waiting  = true;
-		
 		while (waiting == true) {
 		
 			//for girls
 			if (gender == 0) { //if you are a girl
 				
 				if (buffer == 0 && lock == false) { //and if no one is in the bathroom
-					lock = true; //aquire the lock for girls
+					lock = true; //Acquire the lock for girls
 					
 					currentGender = gender; //put a girls sign on the door
 					System.out.println("Time = "+currentTime+"; Person "+Thread.currentThread().getName()+" (F) "
@@ -101,7 +105,6 @@ public class Project3 implements Runnable{
 				}
 			}
 			
-		
 			//for boys
 			if (gender == 1) { //if you are a boy
 				
@@ -133,6 +136,7 @@ public class Project3 implements Runnable{
 			}
 		}
 	}
+	
 	
 	
 	public static void UseFacilities(int id, int gender, int time) {
@@ -213,10 +217,6 @@ public class Project3 implements Runnable{
 	
 	}
 
-	
-	
-	
-	
 }
 
 class Simulate {
