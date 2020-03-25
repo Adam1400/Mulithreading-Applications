@@ -64,7 +64,9 @@ public class Project3 implements Runnable{
 	}
 	
 	
+	@SuppressWarnings("deprecation")
 	public static void Arrive(int id, int gender, int time) throws InterruptedException {
+		
 		
 		boolean waiting  = true;
 		
@@ -94,7 +96,9 @@ public class Project3 implements Runnable{
 					}
 				
 				else {
+					TimeUnit.SECONDS.sleep(currentTime);
 					
+					continue;
 					
 				}
 			}
@@ -124,7 +128,8 @@ public class Project3 implements Runnable{
 				}
 				
 				else {
-					
+					TimeUnit.SECONDS.sleep(currentTime);
+					continue;
 					
 				}
 			}
@@ -136,7 +141,7 @@ public class Project3 implements Runnable{
 		
 		
 		try {
-			TimeUnit.NANOSECONDS.sleep(time);
+			TimeUnit.SECONDS.sleep(time);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -157,11 +162,11 @@ public class Project3 implements Runnable{
 		
 		buffer--;
 		if (gender == 0) {
-			System.out.println("@ Time "+currentTime+"; Person "+id+" (F) exits");
+			System.out.println("@ Time "+(currentTime+time)+"; Person "+id+" (F) exits");
 			
 		}
 		else {
-			System.out.println("@ Time "+currentTime+"; Person "+id+" (M) exits");
+			System.out.println("@ Time "+(currentTime+time)+"; Person "+id+" (M) exits");
 			
 		}
 		
