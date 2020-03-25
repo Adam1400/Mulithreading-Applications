@@ -1,16 +1,20 @@
 package Project3;
 
 import java.util.Random;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Project3 implements Runnable{
-	
+	//initialized all variables
 	public static int people;
 	public static int minTime;
 	public static int maxTime;
 	public static int seed;
+	public static int delay =0;
+	public static int increment=0;
+	
 	
 	public static int currentGender;
 	public static int buffer = 0;
@@ -23,10 +27,21 @@ public class Project3 implements Runnable{
 	private static int gender;
 	private static int time;
 	
+	//Created a lock for the buffer
 	private final static Lock bufflock = new ReentrantLock();
+	
+	//Created the threads (people)
 	public static void Threads() {
-			
 		for(int i=0; i<people; i++) {
+			if(i==increment)
+			{
+				try {
+					TimeUnit.MILLISECONDS.sleep(delay);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			Thread Pthread = new Thread(new Project3());	
 			Pthread.setName(Integer.toString(i + 1));
 						
@@ -34,7 +49,7 @@ public class Project3 implements Runnable{
 		}
 	}
 
-	
+	//created when a person arrives.
 	public void OnePerson(int id, int gender, int time) {
 		
 		//person arrives
@@ -48,7 +63,7 @@ public class Project3 implements Runnable{
 		}
 		
 		
-		
+		//Called the arrive function
 		try {
 			Arrive(id, gender, time);
 		} catch (InterruptedException e) {
@@ -63,16 +78,19 @@ public class Project3 implements Runnable{
 	
 	}
 	
-	
+	//Created the arrive function
 	@SuppressWarnings("deprecation")
 	public static void Arrive(int id, int gender, int time) throws InterruptedException {
 		
+		//locked the buffer
 		bufflock.lock();
 		boolean waiting  = true;
+		
+		//Looped through to check and see what gender is in the bathroom
 		while (waiting == true) {
 			
 			if(Integer.parseInt(Thread.currentThread().getName()) > counter) {
-				//TimeUnit.NANOSECONDS.sleep(id);	
+				TimeUnit.NANOSECONDS.sleep(id);	
 			}
 		
 			//for girls
@@ -114,7 +132,7 @@ public class Project3 implements Runnable{
 				
 				
 				if(buffer == 0 && lock == false) { //and if no one is in the bathoom 
-					lock = true; //aquire the lock for boys
+					lock = true; //acquire the lock for boys
 					
 					currentGender = gender; //put a boys sign on the door
 					System.out.println("Time = "+currentTime+"; Person "+Thread.currentThread().getName()+" (M) "
@@ -146,7 +164,7 @@ public class Project3 implements Runnable{
 		//System.out.println(buffer);
 	}
 	
-	
+	//Tracked who was in the facility
 	public static void UseFacilities(int id, int gender, int time) {
 		
 		bufflock.unlock();
@@ -167,7 +185,7 @@ public class Project3 implements Runnable{
 		
 	}
 	
-	
+	//Tracked when people were leaving the bathroom
 	public static void Depart(int id, int gender, int time) {
 		
 		buffer--;
@@ -192,6 +210,7 @@ public class Project3 implements Runnable{
 		
 	}
 	
+	//Called the program
 	public void run() {
 		
 		
@@ -219,23 +238,33 @@ public class Project3 implements Runnable{
 		
 		
 		
-		
-		//System.out.println(buffer);
 		}
 	
 	}
 
 }
 
+//Called the project 3
 class Simulate {
 	
 	public static void main(String[] args) {
 	
-		Project3.people = 10;
+		//Gathered input to set up delay time and what amount of people.
+		Scanner keyboard = new Scanner(System.in);
+		System.out.println("Please enter the amount of people.");
+		Project3.people = keyboard.nextInt();
+		System.out.println("Please enter your delay time. (If no delay enter 0)");
+		Project3.delay=keyboard.nextInt();
+		System.out.println("Please enter the increments people will come in. (If no increment, enter 1)");
+		Project3.increment=keyboard.nextInt();;
+		
+		//Set times and seed
 		Project3.minTime = 3;
 		Project3.maxTime = 7;
 		Project3.seed = 17;
 		
+		
+		//Run the program
 		Thread main = new Thread(new Project3());
 		main.setName("main");
 		main.start();
