@@ -1,6 +1,7 @@
 package Project3;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class Project3 implements Runnable{
 	
@@ -11,8 +12,10 @@ public class Project3 implements Runnable{
 	
 	public static int currentGender;
 	public static int buffer = 0;
-	public static int arrivalTime = 0;
+	public static int currentTime = 0;
 	public static boolean lock = false;
+	public static int longestTime;
+	
 	
 	private static int id;
 	private static int gender;
@@ -36,13 +39,14 @@ public class Project3 implements Runnable{
 		
 		//person arives
 		if (gender == 0) {
-				System.out.println("Time = "+arrivalTime+";"
+				System.out.println("Time = "+currentTime+";"
 						+ " Person "+Thread.currentThread().getName()+" (F) arrives");
 		}
 		else {
-			System.out.println("Time = "+arrivalTime+";"
+			System.out.println("Time = "+currentTime+";"
 					+ " Person "+Thread.currentThread().getName()+" (M) arrives");
 		}
+		
 		
 		
 		try {
@@ -51,72 +55,124 @@ public class Project3 implements Runnable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
+		UseFacilities(id, gender, time);
+		
+		Depart(id, gender, time);
 	
 	}
 	
 	
 	public static void Arrive(int id, int gender, int time) throws InterruptedException {
 		
-		//for girls
-		if (gender == 0) { //if you are a girl
-			
-			if (buffer == 0 && lock == false) { //and if no one is in the bathroom
-				lock = true; //aquire the lock for girls
+		boolean waiting  = true;
+		
+		while (waiting == true) {
+		
+			//for girls
+			if (gender == 0) { //if you are a girl
 				
-				currentGender = gender; //put a girls sign on the door
-				System.out.println("Time = "+arrivalTime+"; Person "+Thread.currentThread().getName()+" (F) "
-						+ "enters the facilities for "+time+" minutes");
-				buffer++;
+				if (buffer == 0 && lock == false) { //and if no one is in the bathroom
+					lock = true; //aquire the lock for girls
+					
+					currentGender = gender; //put a girls sign on the door
+					System.out.println("Time = "+currentTime+"; Person "+Thread.currentThread().getName()+" (F) "
+							+ "enters the facilities for "+time+" minutes");
+					buffer++;
+					break;
 				
+				}
+				
+				
+				if (buffer < 3 && lock == true && currentGender == 0) { //if there is room and girls have the lock
+						System.out.println("Time = "+currentTime+"; Person "+Thread.currentThread().getName()+" (F) "
+								+ "enters the facilities for "+time+" minutes");
+						buffer++; //arrive in the bathroom
+						break;
+					
+					}
+				
+				else {
+					
+					
+				}
 			}
 			
-			
-			else if (buffer < 3 && lock == true && currentGender == 0) { //if there is room and girls have the lock
-					System.out.println("Time = "+arrivalTime+"; Person "+Thread.currentThread().getName()+" (F) "
+		
+			//for boys
+			if (gender == 1) { //if you are a boy
+				
+				
+				if(buffer == 0 && lock == false) { //and if no one is in the bathoom 
+					lock = true; //aquire the lock for boys
+					
+					currentGender = gender; //put a boys sign on the door
+					System.out.println("Time = "+currentTime+"; Person "+Thread.currentThread().getName()+" (M) "
+							+ "enters the facilities for "+time+" minutes");
+					buffer++;
+					break;
+				
+					
+				}
+				
+				if (buffer < 3 && lock == true && currentGender == 1) { // if theres room and boys have the lock
+					System.out.println("Time = "+currentTime+"; Person "+Thread.currentThread().getName()+" (M) "
 							+ "enters the facilities for "+time+" minutes");
 					buffer++; //arrive in the bathroom
+					break;
 				}
-			else if(buffer >= 3) {
 				
-				
-			}
 				else {
-					//Thread.currentThread().wait();
+					
+					
 				}
+			}
+		}
+	}
+	
+	
+	public static void UseFacilities(int id, int gender, int time) {
+		
+		
+		try {
+			TimeUnit.NANOSECONDS.sleep(time);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
-		
-		//for boys
-		if (gender == 1) { //if you are a boy
+		if (time > longestTime) {
 			
-			if(buffer == 0 && lock == false) { //and if no one is in the bathoom 
-				lock = true; //aquire the lock for boys
-				
-				currentGender = gender; //put a boys sign on the door
-				System.out.println("Time = "+arrivalTime+"; Person "+Thread.currentThread().getName()+" (M) "
-						+ "enters the facilities for "+time+" minutes");
-				buffer++;
-				
-			}
-			
-			else if (buffer < 3 && lock == true && currentGender == 1) { // if theres room and boys have the lock
-				System.out.println("Time = "+arrivalTime+"; Person "+Thread.currentThread().getName()+" (M) "
-						+ "enters the facilities for "+time+" minutes");
-				buffer++; //arrive in the bathroom
-			}
-			else if(buffer >= 3) {
-				
-				
-			}
-			else {
-				//Thread.currentThread().wait();
-			}
-			
-			
-			
+			longestTime = time;
 			
 		}
 		
+		//System.out.println(id+ " using bathroom");
+		
+	}
+	
+	
+	public static void Depart(int id, int gender, int time) {
+		
+		buffer--;
+		if (gender == 0) {
+			System.out.println("@ Time "+currentTime+"; Person "+id+" (F) exits");
+			
+		}
+		else {
+			System.out.println("@ Time "+currentTime+"; Person "+id+" (M) exits");
+			
+		}
+		
+		
+		if (buffer == 0) {
+			
+			lock = false;
+			currentTime = currentTime + longestTime;
+			longestTime = 0;
+			
+		}
 		
 		
 	}
@@ -164,7 +220,7 @@ class Simulate {
 	
 	public static void main(String[] args) {
 	
-		Project3.people = 5;
+		Project3.people = 10;
 		Project3.minTime = 3;
 		Project3.maxTime = 7;
 		Project3.seed = 17;
